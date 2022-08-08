@@ -76,7 +76,7 @@ contract Foo721 is ERC721, ERC721Enumerable, Ownable {
         emit FreeMinted(to);
     }
 
-    function withdraw() external {
+    function withdraw() external onlyOwner {
         // solhint-disable-next-line avoid-low-level-calls
         (bool isSuccess, ) = payable(msg.sender).call{
             value: address(this).balance
