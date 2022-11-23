@@ -1,7 +1,6 @@
 import * as dotenv from 'dotenv';
 import { HardhatUserConfig, task } from 'hardhat/config';
 import '@nomiclabs/hardhat-etherscan';
-import '@nomiclabs/hardhat-waffle';
 import '@typechain/hardhat';
 import 'hardhat-gas-reporter';
 import 'hardhat-contract-sizer';
@@ -10,6 +9,9 @@ import 'hardhat-docgen';
 import 'hardhat-tracer';
 import 'hardhat-spdx-license-identifier';
 import '@tenderly/hardhat-tenderly';
+import '@nomicfoundation/hardhat-chai-matchers';
+import '@nomiclabs/hardhat-ethers';
+import 'hardhat-storage-layout';
 
 dotenv.config();
 
@@ -29,6 +31,10 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
   }
 });
 
+task('storage-layout', 'Prints the storage layout', async (_, hre) => {
+  await hre.storageLayout.export();
+});
+
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 const config: HardhatUserConfig = {
@@ -37,10 +43,19 @@ const config: HardhatUserConfig = {
     settings: {
       optimizer: {
         enabled:
-          process.env.SOLIDITY_OPTIMIZER !== undefined
-            ? process.env.SOLIDITY_OPTIMIZER.toLowerCase() === 'true'
-            : false,
-        runs: 200,
+          (process.env.SOLIDITY_OPTIMIZER &&
+            'true' === process.env.SOLIDITY_OPTIMIZER.toLowerCase()) ||
+          false,
+        runs:
+          (process.env.SOLIDITY_OPTIMIZER_RUNS &&
+            Boolean(parseInt(process.env.SOLIDITY_OPTIMIZER_RUNS)) &&
+            parseInt(process.env.SOLIDITY_OPTIMIZER_RUNS)) ||
+          200,
+      },
+      outputSelection: {
+        '*': {
+          '*': ['storageLayout'],
+        },
       },
     },
   },
@@ -58,16 +73,35 @@ const config: HardhatUserConfig = {
   },
   gasReporter: {
     enabled:
-      process.env.REPORT_GAS !== undefined
-        ? process.env.REPORT_GAS.toLowerCase() === 'true'
-        : false,
+      (process.env.REPORT_GAS &&
+        'true' === process.env.REPORT_GAS.toLowerCase()) ||
+      false,
     coinmarketcap: process.env.COINMARKETCAP_API_KEY || '',
     gasPriceApi:
+      process.env.GAS_PRICE_API ||
       'https://api.etherscan.io/api?module=proxy&action=eth_gasPrice',
     token: 'ETH',
     currency: 'USD',
   },
   networks: {
+    hardhat: {
+      allowUnlimitedContractSize:
+        (process.env.ALLOW_UNLIMITED_CONTRACT_SIZE &&
+          'true' === process.env.ALLOW_UNLIMITED_CONTRACT_SIZE.toLowerCase()) ||
+        false,
+    },
+    custom: {
+      url: process.env.CUSTOM_NETWORK_URL || '',
+      accounts: {
+        count:
+          (process.env.CUSTOM_NETWORK_ACCOUNTS_COUNT &&
+            Boolean(parseInt(process.env.CUSTOM_NETWORK_ACCOUNTS_COUNT)) &&
+            parseInt(process.env.CUSTOM_NETWORK_ACCOUNTS_COUNT)) ||
+          0,
+        mnemonic: process.env.CUSTOM_NETWORK_ACCOUNTS_MNEMONIC || '',
+        path: process.env.CUSTOM_NETWORK_ACCOUNTS_PATH || '',
+      },
+    },
     arbitrumTestnet: {
       url: process.env.ARBITRUM_TESTNET_RPC_URL || '',
       accounts: getWallet(),
@@ -141,7 +175,22 @@ const config: HardhatUserConfig = {
       rinkeby: process.env.ETHERSCAN_API_KEY || '',
       ropsten: process.env.ETHERSCAN_API_KEY || '',
       sokol: process.env.BLOCKSCOUT_API_KEY || '',
+      custom: process.env.CUSTOM_EXPLORER_API_KEY || '',
     },
+    customChains: [
+      {
+        network: 'custom',
+        chainId:
+          (process.env.CUSTOM_NETWORK_CHAIN_ID &&
+            Boolean(parseInt(process.env.CUSTOM_NETWORK_CHAIN_ID)) &&
+            parseInt(process.env.CUSTOM_NETWORK_CHAIN_ID)) ||
+          0,
+        urls: {
+          apiURL: process.env.CUSTOM_NETWORK_API_URL || '',
+          browserURL: process.env.CUSTOM_NETWORK_BROWSER_URL || '',
+        },
+      },
+    ],
   },
 };
 

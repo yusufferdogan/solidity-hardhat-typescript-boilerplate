@@ -10,8 +10,6 @@ scripts
 soldata
 typechain-types
 
-gasReporterOutput.json
-
 coverage*
 *.js
 *.ts
