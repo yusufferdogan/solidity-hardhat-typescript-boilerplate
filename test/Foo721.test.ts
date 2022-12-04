@@ -91,8 +91,10 @@ describe(name, () => {
     }
 
     await expect(
-      contract.freeMint(addresses[6].address)
-    ).to.be.revertedWithCustomError(contract, 'FreeMintExceeded');
+      await expect(
+        contract.freeMint(addresses[6].address)
+      ).to.be.revertedWithCustomError(contract, 'FreeMintExceeded')
+    );
 
     await ethers.provider.send('evm_increaseTime', [-1000]);
   });
