@@ -35,8 +35,6 @@ You can use the below packages,
 - Solhint
 - ESLint
 - Prettier
-- CSpell
-- ShellCheck
 
 ```shell
 yarn run format
@@ -58,19 +56,19 @@ yarn run analyze:all path/to/contract
 
 # Deploy Contract & Verification
 
-To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Ropsten.
+To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Sepolia.
 
 In this project, copy the .env.example file to a file named .env, and then edit it to fill in the details.
 
 - Enter your Etherscan API key
-- Ropsten node URL (eg from Alchemy)
+- Sepolia Node URL (eg from Alchemy)
 - The private key of the account which will send the deployment transaction.
 
 With a valid .env file in place, first deploy your contract:
 
 ```shell
-yarn run deploy ropsten <CONTRACT_FILE_NAME>    # related to scripts/deploy/<CONTRACT_FILE_NAME>.ts
-yarn run deploy:all ropsten                     # related to scripts/deploy.ts
+yarn run deploy sepolia <CONTRACT_FILE_NAME>    # related to scripts/deploy/<CONTRACT_FILE_NAME>.ts
+yarn run deploy:all sepolia                     # related to scripts/deploy.ts
 ```
 
 Also, you can add contract(s) manually to your tenderly projects from the output.
@@ -79,7 +77,7 @@ Also, you can add contract(s) manually to your tenderly projects from the output
 And then verify it:
 
 ```shell
-yarn run verify ropsten <DEPLOYED_CONTRACT_ADDRESS> "<CONSTRUCTOR_ARGUMENT(S)>"    # hardhat.config.ts to see all networks
+yarn run verify sepolia <DEPLOYED_CONTRACT_ADDRESS> "<CONSTRUCTOR_ARGUMENT(S)>"    # hardhat.config.ts to see all networks
 ```
 
 # Finder
@@ -90,6 +88,24 @@ yarn run finder --path contracts/Workshop.sol --name Workshop abi --colorify --c
 
 ```shell
 yarn run finder --help    # see all supported outputs (abi, metadata, bytecode and more than 20+ outputs)
+```
+
+# Storage Vault
+
+```shell
+yarn run storage:lock    # create storage layout for all contracts
+```
+
+```shell
+yarn run storage:lock --help    # see all supported options
+```
+
+```shell
+yarn run storage:check    # check storage layout for all contracts by comparing with existing layout json file
+```
+
+```shell
+yarn run storage:check --help    # see all supported options
 ```
 
 # Miscellaneous
@@ -116,4 +132,7 @@ yarn run share    # share project folder with remix ide
 
 - Increase diversity in the Workshop Contract
 - Add Workshop Contract tests
-- Add TSLint as a TypeScript linter
+- Add Upgradeable Contract Examples
+- Add OpenZeppelin Defender
+- Add Tenderly
+- Fix Prettier for Solidity files
